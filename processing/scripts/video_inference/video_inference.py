@@ -311,4 +311,4 @@ if __name__ == "__main__":
 # Temporal smoothing with prefix-sum optimisation
 
 # Minimum segment duration enforcement
-
+print('DEBUG: smoothing done')  # TODO remove
