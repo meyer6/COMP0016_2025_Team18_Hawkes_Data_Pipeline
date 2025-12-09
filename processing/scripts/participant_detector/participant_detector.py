@@ -14,7 +14,7 @@ from ..utils.error_handling import ProcessingError
 logger = logging.getLogger(__name__)
 
 FRAME_SKIP = 10
-CARD_TIMEOUT_FRAMES = 5
+CARD_TIMEOUT_FRAMES = 8
 SCENE_CHANGE_THRESHOLD = 5.0
 OCR_ALLOWLIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 "
 
