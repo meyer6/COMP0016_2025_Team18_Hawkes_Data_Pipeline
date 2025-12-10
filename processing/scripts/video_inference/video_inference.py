@@ -307,7 +307,3 @@ if __name__ == "__main__":
             print(f"  {task:20s}: {duration:7.1f}s ({pct:5.1f}%)")
     else:
         print(f"Video not found: {VIDEO_PATH}")
-
-# Temporal smoothing with prefix-sum optimisation
-
-# Minimum segment duration enforcement
