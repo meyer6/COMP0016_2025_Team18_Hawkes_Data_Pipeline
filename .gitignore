@@ -13,3 +13,16 @@ venv/
 Thumbs.db
 
 .ipynb_checkpoints/
+
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+*.wmv
+*.webm
+*.m4v
+datasets/
+output/
+exports/
+*.csv
