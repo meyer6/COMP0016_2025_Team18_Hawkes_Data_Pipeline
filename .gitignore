@@ -26,3 +26,14 @@ datasets/
 output/
 exports/
 *.csv
+
+*.pkl
+*.pth
+*.pt
+*.h5
+*.onnx
+!processing/models/task_classifier.pkl
+logs/
+.cache/
+*_annotations_*.json
+config.json
