@@ -9,3 +9,6 @@ fastai>=2.7.0
 
 # OCR
 easyocr>=1.7.0
+
+pandas>=2.0.0
+psutil>=5.9.0
