@@ -310,3 +310,5 @@ if __name__ == "__main__":
 
 # Handle edge case: smoothing window > total frames
 
+# Guard against empty frame batches from corrupt videos
+
