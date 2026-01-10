@@ -24,9 +24,13 @@ class BatchOptimiser:
         # GPU memory
         gpu_memory_gb = 0.0
         if torch.cuda.is_available():
-            gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
-            allocated = torch.cuda.memory_allocated(0) / (1024**3)
-            gpu_memory_gb -= allocated
+            try:
+                gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+                # Account for already allocated memory
+                allocated = torch.cuda.memory_allocated(0) / (1024**3)
+                gpu_memory_gb -= allocated
+            except Exception as e:
+                logger.warning(f"Failed to get GPU memory: {e}")
 
         # System RAM
         system_memory_gb = psutil.virtual_memory().available / (1024**3)
