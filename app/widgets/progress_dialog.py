@@ -152,7 +152,21 @@ class ProcessingProgressDialog(QDialog):
 
     def on_cancel_clicked(self):
         """Handle cancel button click"""
-        self.cancel_requested.emit()
+        reply = show_yes_no_dialog(
+            self,
+            "Cancel Processing",
+            "Are you sure you want to cancel processing this video?\n\n"
+            "Progress will be lost and you'll need to process it again."
+        )
+
+        if reply:
+            # Disable cancel button while cancelling
+            self.cancel_btn.setEnabled(False)
+            self.cancel_btn.setText("Cancelling...")
+            self.stage_label.setText("Cancelling...")
+
+            # Emit cancellation signal
+            self.cancel_requested.emit()
 
     def reset(self):
         """Reset dialog to initial state"""
