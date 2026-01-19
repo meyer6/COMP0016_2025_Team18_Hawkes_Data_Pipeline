@@ -51,7 +51,7 @@ class StyledInputDialog(QDialog):
         label_font.setPointSize(13)
         label_font.setBold(True)
         label.setFont(label_font)
-        label.setStyleSheet(f"color: #e6edf3; margin-bottom: 8px;")
+        label.setStyleSheet(f"color: {COLORS['text_primary']}; margin-bottom: 8px;")
         layout.addWidget(label)
 
         # Input widget based on type
