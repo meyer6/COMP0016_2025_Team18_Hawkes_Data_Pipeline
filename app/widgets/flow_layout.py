@@ -76,6 +76,7 @@ class FlowLayout(QLayout):
 
     def setGeometry(self, rect: QRect):
         """Set the geometry of this layout"""
+        super().setGeometry(rect)
         self._do_layout(rect, test_only=False)
 
     def sizeHint(self):
