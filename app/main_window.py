@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
             self,
             "Select Video File(s)",
             "",
-            "All Files (*)"
+            FileExtensions.get_video_filter()
         )
 
         if file_paths:
