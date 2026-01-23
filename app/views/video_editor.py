@@ -281,10 +281,11 @@ class VideoEditorView(QWidget):
         self.progress_slider.setRange(0, duration)
 
     def on_slider_moved(self, position: int):
-        pass  # TODO: implement seek
+        self.media_player.setPosition(position)
 
     def on_slider_pressed(self):
-        pass
+        position = self.progress_slider.value()
+        self.media_player.setPosition(position)
 
     def on_timeline_clicked(self, time_seconds: float):
         position_ms = int(time_seconds * 1000)
