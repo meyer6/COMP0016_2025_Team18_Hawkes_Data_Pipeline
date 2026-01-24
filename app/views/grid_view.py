@@ -146,6 +146,7 @@ class GridView(QWidget):
     def remove_video(self, video_path: str):
         for i, card in enumerate(self.video_cards):
             if card.video_path == video_path:
+                self.flow_layout.removeWidget(card)
                 card.setParent(None)
                 card.deleteLater()
                 self.video_cards.pop(i)
