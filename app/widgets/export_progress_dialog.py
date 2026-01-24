@@ -103,7 +103,7 @@ class ExportProgressDialog(QDialog):
         if total > 0:
             percentage = int((current / total) * 100)
             self.progress_bar.setValue(percentage)
-            self.detail_label.setText(f"File {current}/{total}")
+            self.detail_label.setText(f"Clip {current} of {total}")
 
         if current >= total and total > 0:
             self.detail_label.setText("Export complete!")
