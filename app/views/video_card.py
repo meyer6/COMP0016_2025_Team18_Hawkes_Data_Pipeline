@@ -183,7 +183,8 @@ class VideoCard(QFrame):
             self.status_badge.hide()
             self.is_processing = False
         else:
-            pass  # TODO: add status badge
+            # Show badge for unprocessed videos
+            self.update_status_badge(status_text)
 
     def update_status(self, status_text: str):
         """Update the status text and badge"""
