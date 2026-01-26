@@ -418,7 +418,7 @@ def show_error_dialog(parent, title, message):
 
 
 def show_warning_dialog(parent, title, message):
-    _show_styled_dialog(parent, title, message, COLORS['accent_orange'], '#8B5900')
+    _show_styled_dialog(parent, title, message, COLORS['accent_orange'], '#c28718')
 
 
 def show_confirmation_dialog(parent, title, message, buttons=['Save', 'Discard', 'Cancel']):
