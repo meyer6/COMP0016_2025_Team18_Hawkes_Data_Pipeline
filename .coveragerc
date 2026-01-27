@@ -1,0 +1,17 @@
+[run]
+source = app
+omit =
+    app/views/*
+    app/widgets/*
+    app/main_window.py
+    app/utils/styles.py
+
+[report]
+show_missing = true
+fail_under = 100
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    @abstractmethod
+    ^\s*pass$
+    ^\s*\.\.\.$:
