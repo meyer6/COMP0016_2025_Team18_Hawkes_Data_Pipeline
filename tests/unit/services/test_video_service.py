@@ -253,7 +253,7 @@ class TestVideoService:
         result = video_service.get_video_metadata('/test.mp4')
         assert result.is_ok()
         fps, duration, frame_count = result.unwrap()
-        assert fps == 29
+        assert fps == 30
         assert duration == 30
         assert frame_count == 900
 
