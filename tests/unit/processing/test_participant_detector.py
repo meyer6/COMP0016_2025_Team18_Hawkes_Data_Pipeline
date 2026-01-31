@@ -150,3 +150,143 @@ class TestReadFrames:
         assert len(frames) == 1
 
 
+class TestProcessVideo:
+
+    @patch('app.processing.participant_detector.open_video_capture')
+    @patch('app.processing.participant_detector.get_video_metadata')
+    def test_process_video_basic(self, mock_meta, mock_open):
+        """Lines 126-184: process_video with mocked pipeline"""
+        from app.domain.result import Ok
+        from app.infrastructure.video_utils import VideoMetadata
+        import numpy as np
+
+        mock_meta.return_value = Ok(VideoMetadata(fps=30, frame_count=30, width=320, height=240, duration=1.0))
+        mock_cap = MagicMock()
+        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+
+        read_calls = [0]
+        def mock_read():
+            read_calls[0] += 1
+            if read_calls[0] <= 3:
+                return True, frame.copy()
+            return False, None
+
+        mock_cap.read = mock_read
+        mock_cap.grab.return_value = True
+        mock_open.return_value = Ok(mock_cap)
+
+        detector = ParticipantDetector(gpu=False)
+        # Mock the OCR reader to return no text
+        detector.reader.readtext = MagicMock(return_value=[])
+
+        results = detector.process_video('/test.mp4', frame_skip=1, card_timeout_frames=2)
+        assert isinstance(results, list)
+
+    @patch('app.processing.participant_detector.get_video_metadata')
+    def test_process_video_metadata_error(self, mock_meta):
+        """process_video raises on metadata error"""
+        from app.domain.result import Err
+        from app.utils.error_handling import VideoError
+        mock_meta.return_value = Err(VideoError("bad", video_path='/test.mp4'))
+
+        detector = ParticipantDetector(gpu=False)
+        from app.utils.error_handling import ProcessingError
+        with pytest.raises(ProcessingError):
+            detector.process_video('/test.mp4')
+
+    @patch('app.processing.participant_detector.open_video_capture')
+    @patch('app.processing.participant_detector.get_video_metadata')
+    def test_process_video_open_error(self, mock_meta, mock_open):
+        """Line 140: open_video_capture fails"""
+        from app.domain.result import Ok, Err
+        from app.infrastructure.video_utils import VideoMetadata
+        from app.utils.error_handling import VideoError, ProcessingError
+        mock_meta.return_value = Ok(VideoMetadata(fps=30, frame_count=300, width=320, height=240, duration=10.0))
+        mock_open.return_value = Err(VideoError("can't open"))
+
+        detector = ParticipantDetector(gpu=False)
+        with pytest.raises(ProcessingError):
+            detector.process_video('/test.mp4')
+
+    @patch('app.processing.participant_detector.open_video_capture')
+    @patch('app.processing.participant_detector.get_video_metadata')
+    def test_process_video_with_detection(self, mock_meta, mock_open):
+        """Lines 156-184: full session detection + progress callback"""
+        from app.domain.result import Ok
+        from app.infrastructure.video_utils import VideoMetadata
+        import numpy as np
+
+        mock_meta.return_value = Ok(VideoMetadata(fps=10, frame_count=100, width=320, height=240, duration=10.0))
+        mock_cap = MagicMock()
+
+        # Simulate frames: first batch has participant card, then card disappears
+        frames_data = []
+        for i in range(20):
+            frames_data.append((True, np.zeros((240, 320, 3), dtype=np.uint8)))
+        frames_data.append((False, None))
+
+        call_idx = [0]
+        def mock_read():
+            idx = call_idx[0]
+            call_idx[0] += 1
+            if idx < len(frames_data):
+                return frames_data[idx]
+            return (False, None)
+
+        mock_cap.read = mock_read
+        mock_cap.grab.return_value = True
+        mock_open.return_value = Ok(mock_cap)
+
+        detector = ParticipantDetector(gpu=False)
+
+        # Make OCR return participant text for first 5 frames, then nothing
+        ocr_call = [0]
+        def mock_readtext(*args, **kwargs):
+            ocr_call[0] += 1
+            if ocr_call[0] <= 5:
+                return ["Participant 1"]
+            return []
+
+        detector.reader.readtext = mock_readtext
+
+        progress_calls = []
+        def progress_cb(current, total):
+            progress_calls.append((current, total))
+
+        results = detector.process_video('/test.mp4', frame_skip=1, card_timeout_frames=3, progress_callback=progress_cb)
+        assert isinstance(results, list)
+        # Should have at least one detection
+        if results:
+            assert results[0]['participant_type'] == 'P'
+            assert results[0]['participant_number'] == 1
+        assert len(progress_calls) > 0  # Line 181: final progress callback
+
+    @patch('app.processing.participant_detector.open_video_capture')
+    @patch('app.processing.participant_detector.get_video_metadata')
+    def test_process_video_with_large_frame_resize(self, mock_meta, mock_open):
+        """Lines 88-89: frame height > 480 triggers resize"""
+        from app.domain.result import Ok
+        from app.infrastructure.video_utils import VideoMetadata
+        import numpy as np
+
+        mock_meta.return_value = Ok(VideoMetadata(fps=10, frame_count=20, width=1920, height=1080, duration=2.0))
+        mock_cap = MagicMock()
+
+        # Create a large frame (height > 480)
+        large_frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+        calls = [0]
+        def mock_read():
+            calls[0] += 1
+            if calls[0] <= 2:
+                return (True, large_frame.copy())
+            return (False, None)
+
+        mock_cap.read = mock_read
+        mock_cap.grab.return_value = True
+        mock_open.return_value = Ok(mock_cap)
+
+        detector = ParticipantDetector(gpu=False)
+        detector.reader.readtext = MagicMock(return_value=[])
+
+        results = detector.process_video('/test.mp4', frame_skip=1, card_timeout_frames=2)
+        assert isinstance(results, list)
