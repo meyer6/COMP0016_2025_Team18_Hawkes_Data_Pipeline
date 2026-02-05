@@ -1,7 +1,9 @@
+# Video Analysis Application Dependencies
+
 # GUI
 PyQt6>=6.6.0
 
-# Computer Vision
+# Computer Vision & Image Processing
 opencv-python>=4.8.0
 numpy>=1.24.0
 
@@ -13,5 +15,16 @@ fastai>=2.7.0
 # OCR
 easyocr>=1.7.0
 
+# Data Processing
 pandas>=2.0.0
+
+# System Utilities
 psutil>=5.9.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.1.0
+pytest-html>=4.1.0
+pytest-sugar>=0.9.7
+pytest-timeout>=2.2.0
+coverage>=7.4.0
