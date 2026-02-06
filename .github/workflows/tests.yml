@@ -1,0 +1,68 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ffmpeg \
+            libegl1 \
+            libxcb-cursor0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-render-util0 \
+            libxkbcommon-x11-0 \
+            xvfb
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchvision
+          pip install opencv-python-headless
+          pip install PyQt6 numpy pandas psutil fastai easyocr
+          # Install testing deps
+          pip install pytest pytest-cov pytest-html pytest-sugar pytest-timeout coverage
+
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          xvfb-run -a python -m pytest \
+            --cov=app \
+            --cov-report=term-missing \
+            --cov-report=html:reports/htmlcov \
+            --html=reports/test_report.html \
+            --self-contained-html \
+            -v -x \
+            --timeout=30
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: reports/
+          retention-days: 30
