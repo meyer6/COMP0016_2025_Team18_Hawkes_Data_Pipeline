@@ -1,19 +1,28 @@
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-.venv/
-venv/
-.idea/
-.vscode/
-*.swp
-*~
-.DS_Store
-Thumbs.db
+# Runtime data (cache, logs, registry, thumbnails)
+.cache/
+logs/
 
-.ipynb_checkpoints/
+# Application data
+*_annotations_*.json
+config.json
 
+# Model files
+*.pkl
+*.pth
+*.pt
+*.h5
+*.onnx
+
+# Exception: include the pre-trained task classifier
+!processing/models/task_classifier.pkl
+
+# Data files
+*.csv
+datasets/
+output/
+exports/
+
+# Video files
 *.mp4
 *.avi
 *.mov
@@ -22,18 +31,43 @@ Thumbs.db
 *.wmv
 *.webm
 *.m4v
-datasets/
-output/
-exports/
-*.csv
 
-*.pkl
-*.pth
-*.pt
-*.h5
-*.onnx
-!processing/models/task_classifier.pkl
-logs/
-.cache/
-*_annotations_*.json
-config.json
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.hypothesis/
+.tox/
+reports/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
