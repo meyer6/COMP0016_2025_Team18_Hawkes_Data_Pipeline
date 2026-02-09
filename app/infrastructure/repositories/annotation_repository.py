@@ -99,7 +99,7 @@ class AnnotationRepository:
             if create_new_version:
                 # Find latest version and increment
                 latest_version = self.find_latest_version(annotation.video_path)
-                new_version = (latest_version or 1) + 1
+                new_version = (latest_version or 0) + 1
                 annotation.version = new_version
             else:
                 # Use existing version or default to 1
