@@ -144,6 +144,17 @@ class VideoService:
 
         for video_path in video_paths:
             try:
+                video_item = self.video_repo.find_by_path(video_path)
+
+                if video_item and video_item.thumbnail_path:
+                    thumbnail_path = Path(video_item.thumbnail_path)
+                    if thumbnail_path.exists():
+                        try:
+                            thumbnail_path.unlink()
+                            logger.debug(f"Deleted thumbnail: {thumbnail_path}")
+                        except Exception as e:
+                            logger.error(f"Error deleting thumbnail: {e}")
+
                 self.annotation_repo.delete_all_versions(video_path)
 
                 if self.video_repo.remove(video_path):

@@ -96,8 +96,17 @@ class VideoProcessor(ProcessorBase):
             for seg in time_ranges
         ]
 
+        if progress_callback:
+            progress_callback("Detecting participants", 50, 100)
+
+        def participant_progress(current, total):
+            if progress_callback:
+                progress = 50 + int((current / total) * 50)  # 50-100% for participant detection
+                progress_callback("Detecting participants", progress, 100)
+
         detections = self.participant_detector.process_video(
-            video_path
+            video_path,
+            progress_callback=participant_progress
         )
 
         annotation.participant_markers = [
