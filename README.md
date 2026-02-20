@@ -43,13 +43,9 @@ source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
-```
 
-If you're on a machine without a GPU, install CPU-only PyTorch first to avoid pulling in CUDA:
-
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt
+#Exact command may change depending on os
+mkdir logs 
 ```
 
 ### Run
