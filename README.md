@@ -44,7 +44,7 @@ source .venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-#Exact command may change depending on os
+# Exact command may change depending on os
 mkdir logs 
 ```
 
