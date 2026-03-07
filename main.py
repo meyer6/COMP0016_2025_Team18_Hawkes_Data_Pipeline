@@ -5,6 +5,7 @@ PyQt6 Application Entry Point
 
 import sys
 import logging
+import torch
 from PyQt6.QtWidgets import QApplication
 from app.main_window import MainWindow
 from app.core.config import AppConfig
