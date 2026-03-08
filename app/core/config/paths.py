@@ -50,6 +50,12 @@ class PathConfig:
         return thumbnails_dir
 
     @classmethod
+    def get_concat_dir(cls) -> Path:
+        local_appdata = Path.home() / '.local' / 'share' / 'video-analysis' / 'concat'
+        local_appdata.mkdir(parents=True, exist_ok=True)
+        return local_appdata
+
+    @classmethod
     def get_models_dir(cls) -> Path:
         return cls.get_project_root() / 'processing' / 'models'
 
