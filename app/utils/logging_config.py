@@ -36,7 +36,8 @@ def setup_logging(
         if log_file_path is None:
             from ..core.config import PathConfig
             log_file_path = PathConfig.get_project_root() / 'logs' / 'app.log'
-            log_file_path.parent.mkdir(exist_ok=True)
+
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
         file_handler = RotatingFileHandler(
             log_file_path,

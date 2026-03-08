@@ -18,34 +18,34 @@ The classifier recognises the following surgical training tasks:
 
 ### Prerequisites
 
+- Windows 10+
 - Python 3.12+
-- FFmpeg (must be on PATH)
-- A CUDA-capable GPU is recommended but not required — the app falls back to CPU
+- A CUDA-capable GPU is recommended but not required - the app falls back to CPU
 
 ### Install
 
 ```bash
 # Clone the repo
-git clone https://github.com/<your-org>/Data-Pipeline.git
-cd Data-Pipeline
+git clone https://github.com/meyer6/COMP0016_2025_Team18_Hawkes_Data_Pipeline.git
+cd COMP0016_2025_Team18_Hawkes_Data_Pipeline
 
 # Create and activate a virtual environment
 python -m venv .venv
 
-# Linux / macOS
-source .venv/bin/activate
-
-# Windows (PowerShell)
+# PowerShell
 .venv\Scripts\Activate.ps1
 
-# Windows (cmd)
+# Or cmd
 .venv\Scripts\activate.bat
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Exact command may change depending on os
-mkdir logs 
+# Reinstall PyTorch with the correct build (pick one)
+# GPU (NVIDIA with CUDA 12.6)
+pip install "torch>=2.1.0,<2.7" "torchvision>=0.16.0,<0.22" --index-url https://download.pytorch.org/whl/cu126 --force-reinstall --no-deps
+# CPU only
+pip install "torch>=2.1.0,<2.7" "torchvision>=0.16.0,<0.22" --index-url https://download.pytorch.org/whl/cpu --force-reinstall --no-deps
 ```
 
 ### Run
@@ -58,7 +58,7 @@ The app opens a grid-based library view. From there you can import videos, queue
 
 ## Configuration
 
-You can drop a `config.json` in the project root to override defaults. All fields are optional — anything you leave out uses the default.
+You can drop a `config.json` in the project root to override defaults. All fields are optional - anything you leave out uses the default.
 
 ```json
 {
@@ -105,11 +105,11 @@ Tests run automatically on every push and PR via GitHub Actions. The CI uses hea
 
 The codebase follows a layered architecture:
 
-- **Domain** — pure data models and result types, no framework dependencies
-- **Infrastructure** — repositories (JSON-backed with in-memory caching and atomic writes), video utilities, model loading
-- **Services** — business logic for import, processing status, and export
-- **Processing** — the ML pipeline: frame sampling, classification, temporal smoothing, OCR detection, memory-aware batching
-- **UI** — PyQt6 views and widgets, with QThread workers to keep the interface responsive during processing
+- **Domain** - pure data models and result types, no framework dependencies
+- **Infrastructure** - repositories (JSON-backed with in-memory caching and atomic writes), video utilities, model loading
+- **Services** - business logic for import, processing status, and export
+- **Processing** - the ML pipeline: frame sampling, classification, temporal smoothing, OCR detection, memory-aware batching
+- **UI** - PyQt6 views and widgets, with QThread workers to keep the interface responsive during processing
 
 Dependency injection is handled by a `ServiceContainer` that wires everything together at startup. Annotations are versioned (`_v1.json`, `_v2.json`, ...) so edits don't destroy previous results.
 

@@ -20,7 +20,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            ffmpeg \
             libegl1 \
             libxcb-cursor0 \
             libxcb-shape0 \
@@ -40,7 +39,7 @@ jobs:
           # Install headless OpenCV (no GUI deps)
           pip install opencv-python-headless
           # Install remaining deps (skip fastai/easyocr - too heavy for CI)
-          pip install PyQt6 numpy pandas psutil
+          pip install PyQt6 numpy pandas psutil imageio-ffmpeg
           # Install testing deps
           pip install pytest pytest-cov pytest-html pytest-sugar pytest-timeout coverage
 
