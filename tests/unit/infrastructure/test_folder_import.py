@@ -192,18 +192,20 @@ class TestConcatenateParts:
             assert result.is_ok()
 
     @patch('app.infrastructure.folder_import.sys')
-    @patch('app.infrastructure.folder_import.subprocess.run')
-    def test_win32_creation_flags(self, mock_run, mock_sys, temp_dir):
+    @patch('app.infrastructure.folder_import.subprocess')
+    def test_win32_creation_flags(self, mock_subprocess, mock_sys, temp_dir):
         mock_sys.platform = 'win32'
+        mock_subprocess.CREATE_NO_WINDOW = 0x08000000
+        mock_subprocess.DEVNULL = subprocess.DEVNULL
         output_path = temp_dir / 'output.avi'
 
         def create_and_check(*args, **kwargs):
             assert 'creationflags' in kwargs
-            assert kwargs['creationflags'] == subprocess.CREATE_NO_WINDOW
+            assert kwargs['creationflags'] == 0x08000000
             output_path.touch()
             return MagicMock(returncode=0)
 
-        mock_run.side_effect = create_and_check
+        mock_subprocess.run.side_effect = create_and_check
         result = concatenate_parts(['/a.avi'], str(output_path))
         assert result.is_ok()
 
