@@ -18,6 +18,9 @@ easyocr>=1.7.0
 # Data Processing
 pandas>=2.0.0
 
+# FFmpeg (bundled binary)
+imageio-ffmpeg>=0.4.9
+
 # System Utilities
 psutil>=5.9.0
 

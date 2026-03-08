@@ -20,7 +20,6 @@ The classifier recognises the following surgical training tasks:
 
 - Windows 10+
 - Python 3.12+
-- [FFmpeg](https://ffmpeg.org/download.html) (must be on PATH)
 - A CUDA-capable GPU is recommended but not required - the app falls back to CPU
 
 ### Install

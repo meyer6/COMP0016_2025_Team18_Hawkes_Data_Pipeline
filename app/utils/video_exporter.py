@@ -6,6 +6,7 @@ import logging
 import subprocess
 from pathlib import Path
 from typing import List, Optional
+import imageio_ffmpeg
 from ..models.annotation import VideoAnnotation, TaskSegment
 
 logger = logging.getLogger(__name__)
@@ -92,7 +93,7 @@ class VideoExporter:
 
             # Using list format for subprocess.run automatically handles path escaping
             command = [
-                'ffmpeg',
+                imageio_ffmpeg.get_ffmpeg_exe(),
                 '-y',  # Overwrite output file
                 '-ss', f'{segment.start_time:.3f}',  # Seek to start (with precision)
                 '-i', str(self.video_path),  # Input file
