@@ -27,6 +27,8 @@ from .widgets.video_selection_dialog import VideoSelectionDialog
 from .widgets.video_deletion_dialog import VideoDeletionDialog
 from .workers.processing_worker import ProcessingWorker
 from .workers.export_worker import ExportWorker
+from .workers.concat_worker import ConcatWorker
+from .infrastructure.folder_import import validate_folder
 from .core.config import AppConfig, PathConfig
 from .core.container import ServiceContainer
 
@@ -55,6 +57,7 @@ class MainWindow(QMainWindow):
         self.processing_queue = []
         self.currently_processing = None
         self.progress_dialog = None
+        self.concat_worker = None
 
         self.batch_export_videos = None
         self.batch_export_output_dir = None
@@ -71,6 +74,7 @@ class MainWindow(QMainWindow):
 
         self.grid_view = GridView()
         self.grid_view.import_clicked.connect(self.on_import_video)
+        self.grid_view.import_folder_clicked.connect(self.on_import_folder)
         self.grid_view.export_all_clicked.connect(self.on_export_all)
         self.grid_view.delete_clicked.connect(self.on_delete_videos)
         self.grid_view.video_clicked.connect(self.on_video_clicked)
@@ -157,6 +161,76 @@ class MainWindow(QMainWindow):
         if file_paths:
             for file_path in file_paths:
                 self.import_video(file_path)
+
+    def on_import_folder(self):
+        folder_path = QFileDialog.getExistingDirectory(
+            self,
+            "Select Video Folder",
+            ""
+        )
+
+        if not folder_path:
+            return
+
+        result = validate_folder(folder_path)
+
+        if result.is_err():
+            error = result.unwrap_err()
+            show_error_dialog(self, "Invalid Folder", error.message)
+            return
+
+        part_paths = result.unwrap()
+        folder_name = Path(folder_path).name
+
+        # Check if already imported
+        output_path = str(PathConfig.get_concat_dir() / f"{folder_name}.avi")
+        if self.video_service.is_video_already_imported(output_path):
+            show_error_dialog(self, "Import Failed", f"Folder already imported: {folder_name}")
+            return
+
+        reply = show_yes_no_dialog(
+            self,
+            "Import Folder",
+            f"Found {len(part_paths)} video part(s) in:\n{folder_name}\n\n"
+            f"The parts will be concatenated into a single video.\n"
+            f"Proceed?"
+        )
+
+        if not reply:
+            return
+
+        self.statusBar().showMessage(f"Concatenating {len(part_paths)} parts...")
+
+        self.progress_dialog = ProcessingProgressDialog(self)
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.setWindowTitle(f"Importing: {folder_name}")
+        self.progress_dialog.reset()
+        self.progress_dialog.stage_label.setText("Concatenating video parts...")
+        self.progress_dialog.detail_label.setText(f"{len(part_paths)} parts — this may take a few minutes")
+        self.progress_dialog.progress_bar.setRange(0, 0)  # Indeterminate pulsing bar
+
+        self.concat_worker = ConcatWorker(part_paths, output_path)
+        self.concat_worker.concat_complete.connect(self._on_concat_complete)
+        self.concat_worker.concat_error.connect(self._on_concat_error)
+        self.progress_dialog.cancel_requested.connect(self.concat_worker.cancel)
+
+        self.concat_worker.start()
+
+    def _on_concat_complete(self, output_path: str):
+        self._close_progress_dialog()
+        self._cleanup_worker(self.concat_worker)
+        self.concat_worker = None
+
+        self.statusBar().showMessage(f"Concatenation complete, importing...")
+        self.import_video(output_path)
+
+    def _on_concat_error(self, error_message: str):
+        self._close_progress_dialog()
+        self._cleanup_worker(self.concat_worker)
+        self.concat_worker = None
+
+        show_error_dialog(self, "Concatenation Failed", error_message)
+        self.statusBar().showMessage("Folder import failed")
 
     def import_video(self, video_path: str):
         result = self.video_service.import_video(video_path)
@@ -796,6 +870,11 @@ class MainWindow(QMainWindow):
                 self.processing_worker.cancel()
                 self.processing_worker.quit()
                 self.processing_worker.wait(3000)  # Wait up to 3 seconds
+
+        if self.concat_worker and self.concat_worker.isRunning():
+            self.concat_worker.cancel()
+            self.concat_worker.quit()
+            self.concat_worker.wait(3000)
 
         if self.export_worker and self.export_worker.isRunning():
             reply = show_yes_no_dialog(

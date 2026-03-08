@@ -19,6 +19,7 @@ class GridView(QWidget):
 
     video_clicked = pyqtSignal(str)  # Emits video_path when card is clicked
     import_clicked = pyqtSignal()
+    import_folder_clicked = pyqtSignal()
     export_all_clicked = pyqtSignal()
     delete_clicked = pyqtSignal()
 
@@ -50,6 +51,12 @@ class GridView(QWidget):
         import_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         import_btn.clicked.connect(self.import_clicked.emit)
         header_layout.addWidget(import_btn)
+
+        import_folder_btn = QPushButton("+ Import Folder")
+        import_folder_btn.setStyleSheet(get_button_style('blue', 'medium'))
+        import_folder_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        import_folder_btn.clicked.connect(self.import_folder_clicked.emit)
+        header_layout.addWidget(import_folder_btn)
 
         delete_btn = QPushButton("Delete")
         delete_btn.setStyleSheet(get_button_style('red', 'medium'))
