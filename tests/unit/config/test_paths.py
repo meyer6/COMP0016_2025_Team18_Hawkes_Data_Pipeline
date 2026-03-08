@@ -48,6 +48,12 @@ class TestPathConfig:
         path = PathConfig.get_video_inference_dir()
         assert path.name == 'video_inference'
 
+    def test_get_concat_dir(self):
+        concat_dir = PathConfig.get_concat_dir()
+        assert concat_dir.name == 'concat'
+        assert concat_dir.exists()
+        assert 'video-analysis' in str(concat_dir)
+
     def test_fallback_when_no_markers(self):
         from unittest.mock import patch
         PathConfig.reset()
