@@ -63,6 +63,19 @@ class TestTaskClassifier:
         result = tc.process_video('/test.mp4', sample_every=30, smoothing_window=15, min_duration_sec=5, batch_size=32)
         assert result == [{'task': 'Suture', 'frame': 1}]
 
+    @patch('app.processing.task_classifier._get_inference_module')
+    def test_process_video_cancelled(self, mock_get_module):
+        mock_vi = MagicMock()
+        mock_vi.process_video.return_value = MagicMock()
+        mock_vi.model = "model"
+        mock_vi.DEVICE = "cpu"
+        mock_get_module.return_value = mock_vi
+
+        tc = TaskClassifier()
+        result = tc.process_video('/test.mp4', cancel_check=lambda: True)
+        assert result == []
+        mock_vi.smooth_predictions.assert_not_called()
+
     @patch('app.processing.task_classifier.pd')
     @patch('app.processing.task_classifier._get_inference_module')
     def test_aggregate_time_ranges(self, mock_get_module, mock_pd):

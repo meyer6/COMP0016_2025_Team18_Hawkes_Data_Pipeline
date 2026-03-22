@@ -161,6 +161,54 @@ class TestProcessVideo:
 
     @patch('app.processing.video_processor.BatchOptimiser')
     @patch('app.processing.video_processor.get_video_metadata')
+    def test_cancel_after_task_classification(self, mock_meta, mock_batch):
+        """cancel_check returning True after task classification skips participant detection"""
+        from app.domain.result import Ok
+        from app.infrastructure.video_utils import VideoMetadata
+
+        mock_meta.return_value = Ok(VideoMetadata(fps=30, frame_count=900, width=1920, height=1080, duration=30.0))
+        mock_batch.calculate_task_classifier_batch_size.return_value = 32
+
+        proc = VideoProcessor()
+        proc._task_classifier = MagicMock()
+        proc._task_classifier.process_video.return_value = [{'task': 'Suture', 'frame': 1}]
+        proc._participant_detector = MagicMock()
+
+        # cancel_check returns True after task classification completes
+        annotation = proc.process_video('/test.mp4', cancel_check=lambda: True)
+        assert annotation.processed is False
+        proc._participant_detector.process_video.assert_not_called()
+
+    @patch('app.processing.video_processor.BatchOptimiser')
+    @patch('app.processing.video_processor.get_video_metadata')
+    def test_cancel_before_participant_detection(self, mock_meta, mock_batch):
+        """cancel_check returning True between stages skips participant detection"""
+        from app.domain.result import Ok
+        from app.infrastructure.video_utils import VideoMetadata
+
+        mock_meta.return_value = Ok(VideoMetadata(fps=30, frame_count=900, width=1920, height=1080, duration=30.0))
+        mock_batch.calculate_task_classifier_batch_size.return_value = 32
+
+        call_count = 0
+        def cancel_after_first_check():
+            nonlocal call_count
+            call_count += 1
+            return call_count > 1  # False on first check, True on second
+
+        proc = VideoProcessor()
+        proc._task_classifier = MagicMock()
+        proc._task_classifier.process_video.return_value = [{'task': 'Suture', 'frame': 1}]
+        proc._task_classifier.aggregate_time_ranges.return_value = [
+            {'task': 'Suture', 'start': '00:00:00', 'end': '00:00:30', 'avg_conf': 0.9}
+        ]
+        proc._participant_detector = MagicMock()
+
+        annotation = proc.process_video('/test.mp4', cancel_check=cancel_after_first_check)
+        assert annotation.processed is False
+        proc._participant_detector.process_video.assert_not_called()
+
+    @patch('app.processing.video_processor.BatchOptimiser')
+    @patch('app.processing.video_processor.get_video_metadata')
     def test_participant_progress_callback(self, mock_meta, mock_batch):
         """Lines 103-105: participant_progress closure calls outer callback"""
         from app.domain.result import Ok
