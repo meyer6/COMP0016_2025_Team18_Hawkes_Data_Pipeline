@@ -367,9 +367,9 @@ class MainWindow(QMainWindow):
 
                 if not self.processing_worker.wait(5000):
                     # If still running after 5 seconds, force quit
-                    logger.warning("Processing worker did not finish gracefully, forcing quit")
-                    self.processing_worker.quit()
-                    self.processing_worker.wait(2000)  # Wait another 2 seconds
+                    logger.warning("Processing worker did not finish gracefully, forcing terminate")
+                    self.processing_worker.terminate()
+                    self.processing_worker.wait(2000)
 
                 self.processing_worker.deleteLater()
                 self.processing_worker = None
@@ -794,8 +794,9 @@ class MainWindow(QMainWindow):
 
             if self.processing_worker and self.processing_worker.isRunning():
                 self.processing_worker.cancel()
-                self.processing_worker.quit()
-                self.processing_worker.wait(3000)  # Wait up to 3 seconds
+                if not self.processing_worker.wait(5000):
+                    self.processing_worker.terminate()
+                    self.processing_worker.wait(2000)
 
         if self.export_worker and self.export_worker.isRunning():
             reply = show_yes_no_dialog(

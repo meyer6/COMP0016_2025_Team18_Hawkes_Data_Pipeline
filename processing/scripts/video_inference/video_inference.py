@@ -86,7 +86,7 @@ def predict_batch(model, frames, device):
     return [(CLASS_NAMES[p.item()], c.item()) for p, c in zip(preds, confs)]
 
 
-def process_video(video_path, model, device, sample_every=1, batch_size=32):
+def process_video(video_path, model, device, sample_every=1, batch_size=32, cancel_check=None):
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -115,6 +115,11 @@ def process_video(video_path, model, device, sample_every=1, batch_size=32):
         frame_nums.clear()
 
     while cap.isOpened():
+        if cancel_check and cancel_check():
+            logger.info("Processing cancelled by user")
+            cap.release()
+            return pd.DataFrame()
+
         # grab() advances without decoding - only retrieve() on sampled frames
         if not cap.grab():
             break

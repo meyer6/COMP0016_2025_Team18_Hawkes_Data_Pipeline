@@ -38,7 +38,8 @@ class ProcessingWorker(BaseWorker):
 
         annotation = processor.process_video(
             self.video_path,
-            progress_callback=self._on_progress
+            progress_callback=self._on_progress,
+            cancel_check=self.is_cancelled
         )
 
         if self.is_cancelled():

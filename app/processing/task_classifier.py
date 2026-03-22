@@ -20,11 +20,14 @@ class TaskClassifier:
         self.device = vi.DEVICE
 
     def process_video(self, video_path, sample_every=30, smoothing_window=15,
-                      min_duration_sec=5, batch_size=32, **kwargs):
+                      min_duration_sec=5, batch_size=32, cancel_check=None, **kwargs):
         vi = _get_inference_module()
 
         df = vi.process_video(video_path, self.model, self.device,
-                              sample_every=sample_every, batch_size=batch_size)
+                              sample_every=sample_every, batch_size=batch_size,
+                              cancel_check=cancel_check)
+        if cancel_check and cancel_check():
+            return []
         df = vi.smooth_predictions(df, smoothing_window=smoothing_window)
         df = vi.enforce_min_duration(df, min_duration_sec=min_duration_sec)
 

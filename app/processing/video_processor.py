@@ -46,7 +46,8 @@ class VideoProcessor(ProcessorBase):
 
     def process_video(self,
                      video_path: str,
-                     progress_callback: Optional[Callable[[str, int, int], None]] = None
+                     progress_callback: Optional[Callable[[str, int, int], None]] = None,
+                     cancel_check: Optional[Callable[[], bool]] = None
                      ) -> VideoAnnotation:
         BatchOptimiser.log_hardware_info()
 
@@ -82,9 +83,13 @@ class VideoProcessor(ProcessorBase):
             smoothing_window=self.smoothing_window,
             min_duration_sec=self.min_duration_sec,
             batch_size=task_batch_size,
+            cancel_check=cancel_check,
         )
 
-        time_ranges = self.task_classifier.aggregate_time_ranges(frame_results)
+        if cancel_check and cancel_check():
+            return annotation
+
+        time_ranges = self.task_classifier.aggregate_time_ranges(frame_results) if frame_results else []
 
         annotation.task_segments = [
             TaskSegment(
@@ -95,6 +100,9 @@ class VideoProcessor(ProcessorBase):
             )
             for seg in time_ranges
         ]
+
+        if cancel_check and cancel_check():
+            return annotation
 
         if progress_callback:
             progress_callback("Detecting participants", 50, 100)
