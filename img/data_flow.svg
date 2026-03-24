@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 972 140" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Step 1: Import -->
+  <rect x="20" y="30" width="140" height="80" rx="10" fill="#4a90d9" filter="url(#shadow)"/>
+  <text x="90" y="62" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Video</text>
+  <text x="90" y="78" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Import</text>
+
+  <!-- Arrow 1 -->
+  <polygon points="168,66 196,66 196,60 210,70 196,80 196,74 168,74" fill="#8ab4f8"/>
+
+  <!-- Step 2: Task Classification -->
+  <rect x="218" y="30" width="140" height="80" rx="10" fill="#e07c3e" filter="url(#shadow)"/>
+  <text x="288" y="62" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Task</text>
+  <text x="288" y="78" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Classification</text>
+
+  <!-- Arrow 2 -->
+  <polygon points="366,66 394,66 394,60 408,70 394,80 394,74 366,74" fill="#8ab4f8"/>
+
+  <!-- Step 3: Participant Detection -->
+  <rect x="416" y="30" width="140" height="80" rx="10" fill="#6b8e5a" filter="url(#shadow)"/>
+  <text x="486" y="62" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Participant</text>
+  <text x="486" y="78" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Detection</text>
+
+  <!-- Arrow 3 -->
+  <polygon points="564,66 592,66 592,60 606,70 592,80 592,74 564,74" fill="#8ab4f8"/>
+
+  <!-- Step 4: Review & Edit -->
+  <rect x="614" y="30" width="140" height="80" rx="10" fill="#8b5fbf" filter="url(#shadow)"/>
+  <text x="684" y="62" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Review</text>
+  <text x="684" y="78" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">&amp; Edit</text>
+
+  <!-- Arrow 4 -->
+  <polygon points="762,66 790,66 790,60 804,70 790,80 790,74 762,74" fill="#8ab4f8"/>
+
+  <!-- Step 5: Export -->
+  <rect x="812" y="30" width="140" height="80" rx="10" fill="#c75050" filter="url(#shadow)"/>
+  <text x="882" y="70" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="600">Export</text>
+</svg>

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="img/hawkes_logo.png" width="600" alt="UCL Hawkes Institute">
+</p>
+
 # Surgical Video Analysis Pipeline
 
 A desktop application for analysing surgical training videos. It uses a deep learning classifier to automatically segment videos into task types (suturing, glove cutting, etc.), detects participant/expert identification cards via OCR, and lets you manually refine the annotations before exporting individual clips.
@@ -6,13 +10,12 @@ Built with PyQt6 and Python 3.12.
 
 ## What it does
 
+![Pipeline Overview](img/data_flow.svg)
+
 1. **Import** videos into a library with auto-generated thumbnails
 2. **Process** them through a task classifier (ResNet50 via fast.ai) and a participant detector (EasyOCR)
 3. **Review and edit** annotations on an interactive colour-coded timeline
 4. **Export** labelled video clips split by task segment
-
-The classifier recognises the following surgical training tasks:
-- CameraTarget, ChickenThigh, CystModel, GloveCut, Idle, MovingIndividualAxes, RingRollercoaster, SeaSpikes, Suture
 
 ## Setup
 
@@ -101,7 +104,46 @@ Coverage targets 100% on core logic (services, models, repositories, config). UI
 
 Tests run automatically on every push and PR via GitHub Actions. The CI uses headless PyQt with xvfb and CPU-only PyTorch to keep things fast.
 
+## ML Models
+
+The system uses two ML models working in sequence to analyse videos:
+
+### Task Classifier
+
+A fine-tuned **ResNet50** CNN (via fast.ai) that classifies video frames into nine surgical task types:
+- CameraTarget, ChickenThigh, CystModel, GloveCut, Idle, MovingIndividualAxes, RingRollercoaster, SeaSpikes, Suture
+
+The model was trained on 42,155 labelled frames across 56 videos and achieves **98.41% validation accuracy**. It samples frames at configurable intervals (default: every 30th frame, ~1 fps at 30fps video), applies temporal smoothing to reduce noise, and enforces minimum segment durations to produce clean, contiguous task segments.
+
+<img src="img/task_classifier_samples.png" width="600" alt="Sample frames from each of the nine surgical training task classes">
+
+*Sample frames from each task class*
+
+### Participant Detector
+
+An **EasyOCR**-based pipeline that reads participant and expert identification cards held up to the camera. Uses fuzzy matching with Levenshtein distance to handle OCR errors (e.g., "particlpant" → "participant"). Session-based majority voting provides robust detection across multiple frames.
+
+<img src="img/participant_card.png" width="400" alt="Participant identification card reading 'Participant 12'">
+
+*Example participant identification card*
+
+### Performance Summary
+
+| Component | Metric | Value |
+|-----------|--------|-------|
+| **Task Classifier** | Accuracy | 98.41% on held-out validation videos |
+| | Processing Speed | ~49 min footage / min (NVIDIA RTX 4060) |
+| | Dataset | 42,155 frames, 56 videos, 9 classes |
+| **Participant Detector** | Detection Rate | Near-perfect on reviewed test cases |
+| | Processing Speed | ~20 min footage / min |
+| | Engine | EasyOCR with fuzzy matching |
+| **Overall Pipeline** | End-to-end Speed | 2.6 hours footage → 11 min processing |
+| | GPU/CPU | CUDA with automatic CPU fallback |
+| | Memory | Dynamic batch size based on available VRAM |
+
 ## Architecture notes
+
+![System Architecture](img/system_architecture.png)
 
 The codebase follows a layered architecture:
 
@@ -121,3 +163,11 @@ Dependency injection is handled by a `ServiceContainer` that wires everything to
 - **Data:** pandas, NumPy
 - **Testing:** pytest + pytest-cov
 - **CI:** GitHub Actions
+
+## Screenshots
+
+**Video Library**
+![Application overview showing video library with thumbnails and status indicators](img/app_overview.png)
+
+**Video Editor**
+![Video editor with colour-coded timeline and annotations](img/video_editor.png)
